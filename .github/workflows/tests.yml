@@ -20,10 +20,15 @@ jobs:
       - name: Run Tests with Maven
         run: mvn test -DsuiteXmlFile=src/test/resources/testng.xml
 
+      - name: Install Allure CLI
+        run: |
+          # Установка Allure CLI
+          sudo apt-get update
+          sudo apt-get install allure
+
       - name: Generate Allure Report
         if: always()
         run: |
-          mkdir -p allure-results
           allure generate allure-results -o allure-report --clean
 
       - name: Upload Allure Report
@@ -32,4 +37,3 @@ jobs:
         with:
           name: allure-report
           path: allure-report/
-          retention-days: 3
