@@ -1,28 +1,35 @@
-name: Run Tests
+name: Run UI Tests
 on: [pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [17]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
 
       - name: Run Tests with Maven
         run: mvn test -DsuiteXmlFile=src/test/resources/testng.xml
 
       - name: Generate Allure Report
+        if: always()
         run: |
+          mkdir -p allure-results
           allure generate allure-results -o allure-report --clean
 
       - name: Upload Allure Report
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: allure-report
-          path: allure-report
+          path: allure-report/
+          retention-days: 3
