@@ -53,8 +53,8 @@ jobs:
 
       # Шаг 6: Сохранение результатов тестов
       - name: Upload Allure results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: allure-results
-          path: target/allure-results/
+          path: allure-results/
           retention-days: 3
