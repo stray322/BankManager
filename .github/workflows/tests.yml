@@ -1,19 +1,60 @@
-  tests.yml
-  name: Run Tests
-  on: [pull_request]
-  jobs:
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - name: Set up Java
-          uses: actions/setup-java@v3
-          with:
-            java-version: '17'
-        - name: Run Tests
-          run: mvn test
-        - name: Upload Allure Report
-          uses: actions/upload-artifact@v3
-          with:
-            name: allure-report
-            path: allure-results
+name: CI/CD with Allure Report
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Получение кода
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Установка Java 17
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      # Шаг 3: Установка Chrome и ChromeDriver
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          echo "CHROME_VERSION=$(google-chrome --version | awk '{print $3}')" >> $GITHUB_ENV
+
+      - name: Install ChromeDriver
+        run: |
+          CHROME_MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d'.' -f1)
+          LATEST_CHROMEDRIVER=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR_VERSION")
+          wget "https://chromedriver.storage.googleapis.com/$LATEST_CHROMEDRIVER/chromedriver_linux64.zip"
+          sudo unzip chromedriver_linux64.zip -d /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+
+      # Шаг 4: Запуск тестов с генерацией Allure-результатов
+      - name: Run tests
+        run: |
+          mvn clean test -B
+          allure generate target/allure-results -o target/allure-report --clean
+
+      # Шаг 5: Публикация отчета на GitHub Pages
+      - name: Deploy Allure Report
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3.9.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/allure-report
+          keep_files: true
+
+      # Шаг 6: Сохранение результатов тестов
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-results
+          path: target/allure-results/
+          retention-days: 3
