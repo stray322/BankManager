@@ -22,19 +22,20 @@ jobs:
           cache: maven
 
       # Шаг 3: Установка Chrome и ChromeDriver
-      - name: Install ChromeDriver
+      - name: Install browsers
         run: |
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
-            sudo ln -s /usr/bin/google-chrome-stable /usr/bin/chrome
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable chromium-chromedriver
+          sudo ln -s /usr/bin/chromium-browser /usr/bin/chrome
+          sudo ln -s /usr/lib/chromium/chromedriver /usr/bin/chromedriver
+          google-chrome --version
+          chromedriver --version
 
       # Шаг 4: Запуск тестов с генерацией Allure-результатов
       - name: Run tests
         run: |
           mvn clean test -B
           allure generate target/allure-results -o target/allure-report --clean
-          pkill -f chromedriver
-          pkill -f chrome
 
       # Шаг 5: Публикация отчета на GitHub Pages
       - name: Deploy Allure Report
@@ -50,5 +51,5 @@ jobs:
         uses: actions/upload-artifact@v4.3.3
         with:
           name: allure-results
-          path: allure-results/
+          path: target/allure-results/
           retention-days: 3

@@ -34,10 +34,10 @@ public class BaseTest {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
+                "--headless=new",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-                "--incognito", // Отключаем user-data-dir
-                "--headless" // Для CI/CD
+                "--disable-gpu"
         );
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
@@ -48,7 +48,7 @@ public class BaseTest {
     /**
      * Закрытие драйвера после всех тестов в классе.
      */
-    @AfterTest
+    @AfterMethod
     public void tearDown() {
         driver.manage().deleteAllCookies();
         if (driver != null) {
