@@ -30,6 +30,7 @@ public class BaseTest {
     @BeforeMethod
     public void setup() {
 //        System.setProperty("webdriver.chrome.driver", driverPath);
+        WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
                 "--user-data-dir=/tmp/chrome_profile_" + UUID.randomUUID());
