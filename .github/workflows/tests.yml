@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Шаг 1: Получение кода
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Шаг 2: Установка Java 17
+      # Step 2: Set up Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -22,12 +22,12 @@ jobs:
           distribution: temurin
           cache: maven
 
-      # Шаг 3: Установка Chrome и ChromeDriver
+      # Step 3: Install Chrome and ChromeDriver
       - name: Install browsers
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          CHROME_VERSION=$(google-chrome --version | grep -oE '[0-9]+(\.[0-9]+)+')
           CHROME_DRIVER_VERSION=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
           wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
@@ -36,17 +36,17 @@ jobs:
           google-chrome --version
           chromedriver --version
 
-      # Шаг 4: Запуск тестов
+      # Step 4: Run tests
       - name: Run tests
         run: |
           mvn clean test -B
 
-      # Шаг 5: Генерация Allure-отчета
+      # Step 5: Generate Allure report
       - name: Generate Allure report
         run: |
           allure generate target/allure-results -o target/allure-report --clean
 
-      # Шаг 6: Публикация отчета
+      # Step 6: Deploy Allure Report
       - name: Deploy Allure Report
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3.9.3
@@ -55,7 +55,7 @@ jobs:
           publish_dir: target/allure-report
           keep_files: true
 
-      # Шаг 7: Сохранение результатов
+      # Step 7: Upload Allure results
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
