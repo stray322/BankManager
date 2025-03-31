@@ -1,14 +1,14 @@
 package pages;
 
+import enums.SortOrder;
+import helpers.AssertHelper;
+import helpers.MathHelper;
+import helpers.WebDriverHelper;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import helpers.WebDriverHelper;
-import org.testng.Assert;
-import enums.SortOrder;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -99,32 +99,34 @@ public class CustomersPage extends BasePage {
         List<String> actualNames = getCustomerNames();
         List<String> expectedSorted = new ArrayList<>(actualNames);
         expectedSorted.sort(expectedOrder.getComparator());
-        Assert.assertEquals(actualNames, expectedSorted, "Некорректная сортировка");
+        AssertHelper.assertEquals(actualNames, expectedSorted, "Некорректная сортировка");
     }
     /**
      * Удаляет клиента с именем, длина которого ближе к средней.
      * @return Имя удаленного клиента
      */
     @Step("Удаление клиента с наиболее близкой к средней длиной имени")
-    public String deleteCustomerWithAverageNameLength() {
+    public List<String> deleteCustomerWithAverageNameLength() {
         List<String> names = getCustomerNames();
         if (names.isEmpty()) {
             throw new RuntimeException("Нет клиентов для удаления!");
         }
 
-        double averageLength = names.stream()
-                .mapToInt(String::length)
-                .average()
-                .orElse(0.0);
+        double averageLength = MathHelper.calculateAverage(names, String::length);
+        List<String> nameToDelete = MathHelper.findClosestItems(names, averageLength, String::length);
+        nameToDelete.forEach(this::performCustomerDeletion);
+        return nameToDelete;
+    }
 
-        String nameToDelete = names.stream()
-                .min(Comparator.comparingDouble(name -> Math.abs(name.length() - averageLength)))
-                .orElse("");
-
-        searchInput.sendKeys(nameToDelete);
+    /**
+     * Выполняет процедуру удаления клиента.
+     * @param name имя клиента для удаления
+     */
+    @Step("Удаление клиента {name}")
+    public void performCustomerDeletion(String name) {
+        searchCustomer(name);
         WebDriverHelper.waitForClickable(driver, deleteButton).click();
         clearSearch();
-        return nameToDelete;
     }
 
     /**
@@ -147,7 +149,7 @@ public class CustomersPage extends BasePage {
         searchCustomer(customerName);
         boolean isPresent = !customerRows.isEmpty();
         clearSearch();
-        Assert.assertTrue(isPresent, "Клиент '" + customerName + "' не найден");
+        AssertHelper.assertTrue(isPresent, String.format("Клиент '%s' не найден", customerName));
     }
 
     /**
@@ -159,7 +161,7 @@ public class CustomersPage extends BasePage {
         searchCustomer(customerName);
         boolean isPresent = !customerRows.isEmpty();
         clearSearch();
-        Assert.assertFalse(isPresent, "Клиент '" + customerName + "' не был удален");
+        AssertHelper.assertFalse(isPresent, String.format("Клиент '%s' не был удален", customerName));
     }
 
     /**

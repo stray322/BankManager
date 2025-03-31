@@ -21,7 +21,6 @@ public class WebDriverHelper {
                 .until(ExpectedConditions.alertIsPresent());
     }
 
-    // Приватный конструктор, чтобы запретить создание экземпляров класса
     private WebDriverHelper() {}
 
     /**

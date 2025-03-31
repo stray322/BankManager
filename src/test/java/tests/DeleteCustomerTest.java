@@ -8,6 +8,8 @@ import pages.CustomersPage;
 import pages.ManagerPage;
 import utils.DataGenerator;
 
+import java.util.List;
+
 /**
  * Тестовый класс для проверки функциональности удаления клиентов.
  * Убеждается, что клиенты корректно удаляются из системы.
@@ -38,8 +40,8 @@ public class DeleteCustomerTest extends BaseTest {
     @Description("Проверка, что клиент удаляется из таблицы")
     public void deleteCustomerTest() {
         CustomersPage customersPage = new CustomersPage(driver);
-        String deletedCustomerName = customersPage.clickCustomersButton().deleteCustomerWithAverageNameLength();
-        customersPage.clickCustomersButton().verifyCustomerNotPresent(deletedCustomerName);
+        List<String> deletedCustomerNames = customersPage.clickCustomersButton().deleteCustomerWithAverageNameLength();
+        deletedCustomerNames.forEach(name->{customersPage.clickCustomersButton().verifyCustomerNotPresent(name);});
     }
 
     /**
