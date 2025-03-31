@@ -2,6 +2,7 @@ name: CI/CD with Allure Report
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
@@ -25,19 +26,27 @@ jobs:
       - name: Install browsers
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable chromium-chromedriver
-          sudo ln -sf /usr/bin/chromium-browser /usr/bin/chrome
-          sudo ln -sf /usr/lib/chromium/chromedriver /usr/bin/chromedriver
+          sudo apt-get install -y google-chrome-stable
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          CHROME_DRIVER_VERSION=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION)
+          wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
           google-chrome --version
           chromedriver --version
 
-      # Шаг 4: Запуск тестов с генерацией Allure-результатов
+      # Шаг 4: Запуск тестов
       - name: Run tests
         run: |
           mvn clean test -B
+
+      # Шаг 5: Генерация Allure-отчета
+      - name: Generate Allure report
+        run: |
           allure generate target/allure-results -o target/allure-report --clean
 
-      # Шаг 5: Публикация отчета на GitHub Pages
+      # Шаг 6: Публикация отчета
       - name: Deploy Allure Report
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3.9.3
@@ -46,9 +55,9 @@ jobs:
           publish_dir: target/allure-report
           keep_files: true
 
-      # Шаг 6: Сохранение результатов тестов
+      # Шаг 7: Сохранение результатов
       - name: Upload Allure results
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: target/allure-results/
