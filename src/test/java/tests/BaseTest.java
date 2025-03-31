@@ -9,12 +9,16 @@ import org.testng.annotations.Listeners;
 import utils.ConfigReader;
 import java.time.Duration;
 
+
 /**
  * Базовый класс для всех UI-тестов.
  * Инициализирует драйвер и управляет его жизненным циклом.
  */
 @Listeners(listeners.AllureListener.class)
 public class BaseTest {
+
+    private static final int TIMEOUT = ConfigReader.getTimeout();
+    String driverPath = "src/test/resources/chromedriver.exe";
     protected WebDriver driver;
 
     public WebDriver getDriver() {
@@ -23,10 +27,10 @@ public class BaseTest {
 
     @BeforeMethod
     public void setup() {
-        WebDriverManager.chromedriver().setup();
+        System.setProperty("webdriver.chrome.driver", driverPath);
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
         driver.get(ConfigReader.getProperty("base.url"));
     }
 
