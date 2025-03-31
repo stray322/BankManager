@@ -3,11 +3,13 @@ package tests;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import utils.ConfigReader;
 import java.time.Duration;
+import java.util.UUID;
 
 
 /**
@@ -27,8 +29,11 @@ public class BaseTest {
 
     @BeforeMethod
     public void setup() {
-        System.setProperty("webdriver.chrome.driver", driverPath);
-        driver = new ChromeDriver();
+//        System.setProperty("webdriver.chrome.driver", driverPath);
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+                "--user-data-dir=/tmp/chrome_profile_" + UUID.randomUUID()
+        driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
         driver.get(ConfigReader.getProperty("base.url"));
