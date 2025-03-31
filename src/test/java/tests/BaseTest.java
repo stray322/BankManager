@@ -32,7 +32,7 @@ public class BaseTest {
 //        System.setProperty("webdriver.chrome.driver", driverPath);
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
-                "--user-data-dir=/tmp/chrome_profile_" + UUID.randomUUID();
+                "--user-data-dir=/tmp/chrome_profile_" + UUID.randomUUID());
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
