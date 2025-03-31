@@ -33,6 +33,8 @@ jobs:
         run: |
           mvn clean test -B
           allure generate target/allure-results -o target/allure-report --clean
+          pkill -f chromedriver
+          pkill -f chrome
 
       # Шаг 5: Публикация отчета на GitHub Pages
       - name: Deploy Allure Report

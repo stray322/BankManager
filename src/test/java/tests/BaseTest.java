@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import utils.ConfigReader;
@@ -47,7 +48,7 @@ public class BaseTest {
     /**
      * Закрытие драйвера после всех тестов в классе.
      */
-    @AfterMethod
+    @AfterTest
     public void tearDown() {
         driver.manage().deleteAllCookies();
         if (driver != null) {
