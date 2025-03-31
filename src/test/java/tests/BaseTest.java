@@ -33,7 +33,11 @@ public class BaseTest {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
         options.addArguments(
-                "--user-data-dir=/tmp/chrome_profile_" + UUID.randomUUID());
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--incognito", // Отключаем user-data-dir
+                "--headless" // Для CI/CD
+        );
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
