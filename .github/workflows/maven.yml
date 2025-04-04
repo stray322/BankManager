@@ -1,33 +1,20 @@
-name: Java CI
-
-on: [push, pull_request]
-
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
 
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      - name: Start API Server
+        run: |
+          ./start-api-server.sh &  # Ensure your API server start script is correct
+          sleep 10  # Give the server time to start
 
       - name: Run tests
-        run: mvn clean test -Dtest=EntityApiTest
-
-      - name: Generate Allure Report
-        run: mvn allure:report
-
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: target/allure-report
+        run: mvn test
