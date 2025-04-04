@@ -1,4 +1,4 @@
-name: Run API Tests with Allure Report
+name: API Tests with Allure Report
 
 on:
   workflow_dispatch:
@@ -8,15 +8,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:15.2
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: test
+      api-service:
+        image: simbirsoft_sdet_project-service:latest
         ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+          - 8080:8080
+        options: --health-cmd "curl -f http://localhost:8080/health || exit 1" --health-interval 10s
 
     steps:
       - name: Checkout code
@@ -28,36 +24,35 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build and test with Maven
-        run: mvn clean test allure:report
+      - name: Verify service availability
+        run: |
+          echo "Waiting for API to start..."
+          until curl -s http://localhost:8080/health; do
+            sleep 2
+          done
+
+      - name: Run tests with Allure
+        run: |
+          mvn clean test
+          mvn allure:report
+        env:
+          BASE_URL: http://api-service:8080/api
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: target/allure-results
-          retention-days: 20
 
-      - name: Get Allure history
-        uses: actions/checkout@v4
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: allure-history
-
-      - name: Generate Allure report
+      - name: Generate and publish Allure report
         uses: simple-elf/allure-report-action@v1.9
-        if: always()
         with:
           allure_results: target/allure-results
           allure_report: allure-report
-          allure_history: allure-history
-          keep_reports: 20
+          keep_reports: 5
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v2
-        if: always()
         env:
           PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PUBLISH_BRANCH: gh-pages
