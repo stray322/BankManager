@@ -31,3 +31,5 @@ jobs:
         with:
           name: allure-report
           path: target/allure-report
+      - name: Build and run tests
+        run: mvn clean test -Dtest=EntityApiTest -Dallure.enabled=false -X
