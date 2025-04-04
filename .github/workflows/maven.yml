@@ -1,35 +1,28 @@
-name: Java CI
+name: CI
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Cache Maven
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-
-      - name: Run tests
-        run: mvn clean test
-
-      - name: Generate Allure Report
-        run: mvn allure:serve
-
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: target/allure-report
-      - name: Build and run tests
-        run: mvn clean test -Dtest=EntityApiTest -Dallure.enabled=false -X
+      - name: Start API Server
+        run: mvn spring-boot:run &
+      - name: Run Tests
+        run: mvn test
+        env:
+          API_URL: http://localhost:8080
+          DB_URL: jdbc:postgresql://localhost:5432/testdb
+          DB_USER: user
+          DB_PASSWORD: password
