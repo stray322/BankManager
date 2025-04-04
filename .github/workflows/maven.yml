@@ -1,15 +1,16 @@
-name: CI
-
-on: [push]
-
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     services:
-      redis:
-        image: redis
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
         ports:
-          - 6379:6379
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -17,12 +18,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Start API Server
-        run: mvn spring-boot:run &
-      - name: Run Tests
-        run: mvn test
+      - name: Build and test
         env:
-          API_URL: http://localhost:8080
-          DB_URL: jdbc:postgresql://localhost:5432/testdb
-          DB_USER: user
-          DB_PASSWORD: password
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
+          HTTP_PORT: 8080
+          LOGGER_FORMAT: json
+        run: mvn clean test
