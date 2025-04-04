@@ -3,7 +3,6 @@ name: Run API Tests with Allure Report
 on:
   workflow_dispatch:
   push:
-    branches: [main]
 
 jobs:
   test:
