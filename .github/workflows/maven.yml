@@ -21,7 +21,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
 
       - name: Run tests
-        run: mvn clean test -Dtest=EntityApiTest
+        run: mvn clean test
 
       - name: Generate Allure Report
         run: mvn allure:serve
