@@ -14,7 +14,7 @@ import utils.ConfigReader;
  * - Настройка спецификации HTTP-запросов
  * - Логирование ключевых параметров в Allure-отчёт
  */
-public class BaseTest {
+public class BaseTest{
 
     /**
      * Базовый URL API-сервиса, загружаемый из конфигурационного файла.

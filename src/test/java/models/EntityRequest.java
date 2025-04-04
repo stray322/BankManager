@@ -8,7 +8,7 @@ import java.util.List;
  * Модель запроса для создания/обновления сущности.
  * Содержит основные параметры сущности и дополнительную информацию.
  */
-public class EntityRequest {
+public class EntityRequest{
     @JsonProperty("title")
     private String title;
 

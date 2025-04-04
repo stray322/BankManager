@@ -21,7 +21,7 @@ import static org.testng.Assert.*;
  */
 @Epic("API Тесты для работы с сущностями")
 @Feature("CRUD операций с сущностями")
-public class EntityApiTest extends BaseTest {
+public class EntityApiTest extends BaseTest{
     private Integer createdEntityId;
 
     /**

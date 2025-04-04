@@ -13,7 +13,7 @@ import java.util.Properties;
  * - Централизованный доступ к настройкам
  * - Интеграцию с системой отчётности Allure
  */
-public class ConfigReader {
+public class ConfigReader{
     private static final Properties properties = new Properties();
 
     static {

@@ -8,7 +8,7 @@ import java.util.List;
  * Модель ответа API с данными сущности.
  * Содержит полную информацию о созданной/полученной сущности.
  */
-public class EntityResponse {
+public class EntityResponse{
     @JsonProperty("id")
     private Integer id;
 
